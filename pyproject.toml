@@ -1,0 +1,100 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ps-gnn"
+version = "0.1.0"
+description = "Graph Attention Network-based Persistent Scatterer identification for InSAR time series."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "ps-gnn contributors" }
+]
+keywords = [
+    "InSAR",
+    "persistent-scatterer-interferometry",
+    "graph-neural-networks",
+    "remote-sensing",
+    "earth-observation",
+    "deep-learning",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "torch>=2.2",
+    "torch-geometric>=2.5",
+    "rasterio>=1.3",
+    "geopandas>=0.14",
+    "numpy>=1.26",
+    "scikit-learn>=1.4",
+    "shap>=0.45",
+    "plotly>=5.20",
+    "folium>=0.16",
+    "pyvista>=0.43",
+    "jinja2>=3.1",
+    "onnxruntime>=1.17",
+    "tqdm>=4.66",
+    "pandas>=2.2",
+    "scipy>=1.12",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "black>=24.0",
+    "ruff>=0.4",
+    "mypy>=1.9",
+]
+geo-extra = [
+    "libpysal>=4.9",
+    "esda>=2.5",
+    "pointpats>=2.4",
+    "leafmap>=0.32",
+]
+deploy = [
+    "openvino>=2024.0",
+]
+
+[project.scripts]
+ps-gnn-ablation = "ps_gnn.training.ablation:main"
+
+[project.urls]
+Homepage = "https://github.com/your-org/ps-gnn"
+Repository = "https://github.com/your-org/ps-gnn"
+Issues = "https://github.com/your-org/ps-gnn/issues"
+
+[tool.setuptools.packages.find]
+include = ["ps_gnn*"]
+
+[tool.setuptools.package-data]
+ps_gnn = ["py.typed"]
+
+[tool.pytest.ini_options]
+markers = [
+    "slow: marks tests as slow / heavy integration tests (deselect with '-m \"not slow\"')",
+]
+testpaths = ["tests"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true

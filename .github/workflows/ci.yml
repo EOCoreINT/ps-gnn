@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install lint tools
+        run: pip install ruff black
+      - name: Ruff
+        run: ruff check ps_gnn tests
+      - name: Black (check only)
+        run: black --check ps_gnn tests
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install package (CPU torch + dev + geo-extra)
+        run: |
+          pip install --upgrade pip
+          pip install -e ".[dev,geo-extra]" --extra-index-url https://download.pytorch.org/whl/cpu
+      - name: Run fast unit tests
+        run: pytest tests/ -m "not slow" --cov=ps_gnn --cov-report=xml -v
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+
+  slow-integration-tests:
+    runs-on: ubuntu-latest
+    needs: test
+    # Slow/integration tests run once (not matrixed across Python versions)
+    # and only after the fast suite has already passed, to keep PR feedback
+    # quick while still exercising the full pipeline on every push to main.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install package
+        run: |
+          pip install --upgrade pip
+          pip install -e ".[dev,geo-extra]" --extra-index-url https://download.pytorch.org/whl/cpu
+      - name: Run slow / integration tests
+        run: pytest tests/ -m "slow" -v

@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "ps-gnn: Graph Attention Networks for Persistent Scatterer Identification in InSAR Time Series"
+type: software
+version: 0.1.0
+date-released: "2026-08-29"
+license: MIT
+repository-code: "https://github.com/your-org/ps-gnn"
+authors:
+  - name: "ps-gnn contributors"
+keywords:
+  - InSAR
+  - persistent-scatterer-interferometry
+  - graph-neural-networks
+  - remote-sensing
+  - earth-observation
+  - deep-learning
