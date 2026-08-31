@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="ps-gnn" src="docs/assets/logo.svg" width="620">
+  <img alt="ps-gnn" src="https://raw.githubusercontent.com/EOCoreINT/ps-gnn-insar/89da28d1557e822bdd1b9f07ac46aaabd818068a/docs/assets/logo.svg?token=BFQ3XVTESPQCY5L2A3RARSTKSVARM" width="620">
 </p>
 
 <p align="center">
