@@ -1,6 +1,9 @@
-<p align="center">
-  <img alt="ps-gnn" src="https://raw.githubusercontent.com/EOCoreINT/ps-gnn-insar/89da28d1557e822bdd1b9f07ac46aaabd818068a/docs/assets/logo.svg?token=BFQ3XVTESPQCY5L2A3RARSTKSVARM" width="520">
-</p>
+<div align="center">
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/logo-horizontal-dark.svg">
+  <img src="assets/logo.svg" alt="ps-gnn" width="420">
+</picture>
 
 <p align="center">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg"></a>
