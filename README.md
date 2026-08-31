@@ -5,6 +5,12 @@
   <img src="assets/logo.png" alt="ps-gnn" width="420">
 </picture>
 
+## ⚠️ Important Note
+
+This project is **actively under development**. While the core functionality 
+is production-ready and thoroughly tested, some advanced features are still 
+being refined.
+
 <p align="center">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg"></a>
   <a href="pyproject.toml"><img alt="Python 3.10+" src="https://img.shields.io/badge/python-3.10%2B-blue.svg"></a>
