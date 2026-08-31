@@ -2,7 +2,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/logo-horizontal-dark.svg">
-  <img src="assets/logo.svg" alt="ps-gnn" width="420">
+  <img src="assets/logo.png" alt="ps-gnn" width="420">
 </picture>
 
 <p align="center">
