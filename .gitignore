@@ -27,7 +27,7 @@ htmlcov/
 .ipynb_checkpoints/
 
 # Model artifacts / large data (should be fetched or DVC-tracked, not committed)
-data/
+
 results/
 runs/
 reports/

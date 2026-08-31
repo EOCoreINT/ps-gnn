@@ -1,0 +1,134 @@
+feat: initial implementation of ps-gnn (v0.1.0)
+
+Graph Attention Networks for Persistent Scatterer identification in
+InSAR time series — a full package implementation, from data ingestion
+through training, inference, validation, explainability, and reporting,
+plus a scientifically hardened synthetic stress-test suite and an
+executed end-to-end notebook.
+
+Data pipeline (ps_gnn/data/)
+-----------------------------
+- fetch_benchmarks.py: benchmark dataset fetching (Mexico City, Amatrice,
+  Piton de la Fournaise, Berlin, Jakarta) via pygeofetch, with a synthetic
+  mock fallback for offline/CI use.
+- label_generation.py: inject_synthetic_ps (perfectly stable synthetic PS
+  injection) and generate_stamps_pseudo_labels (high-confidence pseudo-
+  labels mined from classical StaMPS output).
+- preprocessing.py: compute_node_features (19-D feature vector: amplitude
+  stats, ADI, temporal coherence, local texture, one-hot WorldCover) and
+  build_graph (spatial-proximity + phase-correlation edge construction,
+  KD-tree accelerated) -> build_pyg_dataset assembling a PyG Data object.
+
+Models (ps_gnn/models/)
+------------------------
+- ps_gnn.py: PSGNN — Linear encoder -> GCNConv -> BatchNorm -> GATConv
+  (8-head, attention-exposing) -> residual -> SAGEConv -> MLP classifier.
+- ps_vit.py: PSViT — patch embedding + Bi-LSTM temporal encoder +
+  Transformer, an ablation baseline against the graph-based approach.
+- losses.py: PhysicsInformedPSLoss — weighted cross-entropy + a circular
+  phase-stability term (mean resultant vector length, correctly handling
+  the +/-pi wrap boundary — a linear std dev was tried first and shown to
+  misreport dispersion near the boundary by ~50x) + a spatial-coherence
+  term pulling same-label neighbor embeddings together.
+
+Training (ps_gnn/training/)
+-----------------------------
+- trainer.py: 5-fold spatial-block cross-validation (random splits leak
+  on a spatial graph), curriculum learning over the graph's
+  phase-correlation threshold, AdamW + linear-warmup/cosine LR schedule,
+  gradient clipping, TensorBoard logging, best-F1 checkpointing.
+- ablation.py: sweeps loss components, backbone (GNN vs. ViT), and graph
+  construction thresholds; CLI entry point (`ps-gnn-ablation`).
+
+Inference & deployment (ps_gnn/inference/, ps_gnn/utils/)
+------------------------------------------------------------
+- detector.py: PSDetector — tiled inference with a provably gap-free,
+  non-overlapping stitching scheme (verified across multiple tile/overlap
+  configurations including edge cases), genuine Monte Carlo Dropout
+  uncertainty (fixed a real bug where predict_proba()'s internal
+  .eval() call was silently collapsing MC-Dropout to deterministic
+  output), and connected-component clustering.
+- deployment.py: ONNX export (documented, expected failure mode for
+  GATConv's data-dependent self-loop logic), Zenodo-based weight caching
+  with checksum verification, GPU -> CPU -> OpenVINO runtime fallback.
+
+Validation (ps_gnn/validation/)
+----------------------------------
+- sbas_check.py: from-scratch weighted-least-squares SBAS time-series
+  inversion with baseline-decorrelation-weighted interferograms (verified
+  to exactly recover ground-truth displacement in the noise-free case);
+  run_sbas_validation compares PS-GNN selections against a classical
+  ADI-threshold baseline on temporal coherence, residual variance, and
+  coverage.
+
+Analytics & visualization (ps_gnn/analytics/, ps_gnn/visualization/)
+-------------------------------------------------------------------------
+- explainability.py: SHAP-based per-node and global feature attribution
+  (device-hardened for CPU/GPU mismatches between the model and SHAP's
+  background arrays).
+- spatial_stats.py: Moran's I (esda-backed with a dependency-free manual
+  fallback verified to match to 13 decimal places), Ripley's K-function
+  vs. Complete Spatial Randomness, uncertainty calibration curves.
+- maps.py / charts.py: interactive Folium 2D maps, Plotly 3D DEM-draped
+  terrain plots, training curves, confusion matrix, PR curve, and
+  feature-distribution violin plots.
+- report_generator.py: self-contained, gracefully-degrading HTML report
+  assembling all of the above; every section falls back to a "skipped"
+  note rather than failing when optional context isn't supplied.
+
+Testing & CI
+-------------
+- 42 tests across unit (preprocessing), model (PS-GNN/PS-ViT/loss),
+  integration (full pipeline + memory-leak check), and validation
+  (SBAS hypothesis, in both directions) suites. Deterministic via an
+  autouse seeding fixture.
+- .github/workflows/ci.yml: ruff + black lint job, a fast-test matrix
+  across Python 3.10-3.12, and a separate slow/integration job gated on
+  the fast job.
+- Repo scaffolding: pyproject.toml (with a `ps-gnn-ablation` console
+  script and PEP 561 py.typed marker), .pre-commit-config.yaml,
+  CONTRIBUTING.md, CHANGELOG.md, CITATION.cff, .gitignore.
+
+Synthetic stress-test pipeline & notebook
+--------------------------------------------
+- synthetic_pipeline_utils.py: shared injection/diagnostic helpers —
+  realistic (non-degenerate) PS + "false neighbor" hard-negative
+  injection, borderline-ADI cluster injection, attention-by-edge-role,
+  recall-by-role, and hit/miss confidence and spatial-contamination
+  diagnostics (the latter built with explicit group-ID exclusion after
+  an initial version was found to be confounded by each point's own
+  by-design neighbors).
+- run_synthetic_pipeline_hardened.py: the full-scale (128x128, 50-epoch)
+  experiment built on the above, evolved through several rounds of
+  auditing the original naive pipeline script (which had a near-edgeless
+  graph, a trivially separable task, and a random rather than classical
+  baseline) into a genuine stress test.
+- ps_gnn_full_pipeline.ipynb: a fully executed (zero errors, 31/31 code
+  cells) end-to-end notebook covering all 15 pipeline stages at a
+  faster-iterating scale, including a live SHAP performance fix
+  discovered by measuring actual per-call cost rather than assuming it.
+
+Key empirical findings from the hardened experiments (reported honestly,
+including the one that did not confirm the initial hypothesis):
+- Attention mechanism: confirmed the GAT layer learns to assign lower
+  attention to deceptive "false neighbor" edges than to generic
+  background edges, and the gap widens with more training.
+- Borderline-ADI recovery: PS-GNN recovers 97.5% of genuine scatterers
+  whose individual ADI exceeds the classical 0.25 threshold (recoverable
+  only via cluster phase corroboration), vs. 10.0% for a fixed threshold.
+- Aggregate SBAS coherence vs. classical ADI thresholding: not met in the
+  hardened configuration -- a real recall trade-off, not omitted from
+  the record.
+
+Documentation & branding
+---------------------------
+- README.md: full rewrite with a Mermaid architecture diagram (validated
+  with the actual mermaid parser), an honest results table, and a
+  complete quickstart.
+- docs/assets/: a custom logo (hexagonal badge combining a real InSAR
+  deformation-bowl fringe pattern with a graph-attention motif) in
+  light/dark SVG lockups, icon-only mark, and PNG fallbacks, generated
+  procedurally via docs/assets/_generate_logo.py.
+- docs/index.md: module-by-module documentation index.
+
+No external network calls, API keys, or credentials are included.
