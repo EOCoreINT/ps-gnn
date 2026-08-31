@@ -1,8 +1,5 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-dark.svg">
-    <img alt="ps-gnn" src="docs/assets/logo.svg" width="620">
-  </picture>
+  <img alt="ps-gnn" src="docs/assets/logo.svg" width="620">
 </p>
 
 <p align="center">
