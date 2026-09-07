@@ -135,25 +135,6 @@ These are real numbers from actual runs (see the notebook and hardened script ab
 
 The borderline-ADI experiment is the one that matters most: it's the first test in this project specifically engineered so classical thresholding *cannot* win by construction, and PS-GNN's large, unambiguous margin there is the clearest evidence that graph reasoning is doing something a per-pixel method structurally cannot.
 
-## Project layout
-
-```
-ps_gnn/
-├── data/            # Fetching, ground-truth / pseudo-label generation, preprocessing, graph construction
-├── models/          # PS-GNN, PS-ViT, physics-informed losses
-├── training/        # Trainer (spatial CV, curriculum learning), ablation runner
-├── inference/       # Tiled inference, Monte Carlo uncertainty
-├── validation/      # From-scratch SBAS time-series inversion & validation
-├── analytics/       # Explainability (SHAP), spatial statistics, HTML report generator
-├── visualization/   # Interactive maps (Folium) and charts (Plotly)
-└── utils/           # Deployment: ONNX export, weight caching, runtime fallback
-tests/               # Unit, model, integration, and validation tests (42 tests)
-docs/                # Documentation index and logo assets
-synthetic_pipeline_utils.py       # Shared synthetic-data injection & diagnostic helpers
-run_synthetic_pipeline_hardened.py # Full-scale stress-test script (see results above)
-ps_gnn_full_pipeline.ipynb        # Complete, executed end-to-end notebook
-```
-
 ## Documentation
 
 A module-by-module map, tying every pipeline stage to its source file, is in [`docs/index.md`](docs/index.md). Every public function has a complete NumPy-style docstring — start there for API details.
