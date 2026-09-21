@@ -17,6 +17,10 @@
 
 </div>
 
+# ⚠️ Work In Progress (Pre-Alpha)
+This repository is currently an active R&D playground as part of my pre-Master's roadmap for the Copernicus Master in Digital Earth. Architecture is shifting rapidly. 
+
+
 **Graph Attention Networks for Persistent Scatterer identification in InSAR time series.**
 Reframes classical PSI point selection as node classification on a spatial graph, so the model reasons about *which neighbors to trust* instead of judging every pixel in isolation.
 
