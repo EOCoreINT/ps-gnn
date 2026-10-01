@@ -9,7 +9,7 @@ engineering improvements.
 ## Development setup
 
 ```bash
-git clone https://github.com/your-org/ps-gnn.git
+git clone https://github.com/EOCoreINT/ps-gnn.git
 cd ps-gnn
 pip install -e ".[dev,geo-extra]"
 pre-commit install
